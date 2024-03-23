@@ -1,9 +1,8 @@
 from pydantic import BaseModel
-import pydantic
 
 
 class URLBase(BaseModel):
-    target_url: pydantic.HttpUrl
+    target_url: str
 
 
 class URL(URLBase):
