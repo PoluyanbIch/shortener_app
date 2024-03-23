@@ -1,12 +1,12 @@
 from functools import lru_cache
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
     env_name: str = "Local"
     base_url: str = "http://localhost:8000"
-    db_url: str = "sqlite:///./shortener.db"
+    db_url: str = "sqlite:///shortener_app/shortener.db"
 
     class Config:
         env_file = '.env'
