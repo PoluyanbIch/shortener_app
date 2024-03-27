@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class URLBase(BaseModel):
@@ -16,3 +16,7 @@ class URL(URLBase):
 class URLInfo(URL):
     url: str
     admin_url: str
+
+
+class Model(BaseModel):
+    url: str = Field(title='URL')

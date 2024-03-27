@@ -1,0 +1,2 @@
+[console_scripts]
+fastui = fastui.__main__:cli

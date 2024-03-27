@@ -1,12 +1,18 @@
 from typing import Annotated
 
-from fastapi import FastAPI, HTTPException, Depends, Request
-from fastapi.responses import RedirectResponse
 import validators
+from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi.responses import RedirectResponse, HTMLResponse
+from fastui import FastUI, AnyComponent, prebuilt_html, components as c
+from fastui.events import GoToEvent
+from fastui.forms import fastui_form
 from sqlalchemy.orm import Session
 
-from . import models, schemas, crud
-from .database import SessionLocal, engine
+import crud
+import models
+import schemas
+from config import get_settings
+from database import SessionLocal, engine
 
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
@@ -29,13 +35,25 @@ def raise_not_found(request):
     raise HTTPException(status_code=404, detail=message)
 
 
-@app.get('/')
-def read_root():
-    return 'Welcome to the URL shortener API'
+@app.get("/api/", response_model=FastUI, response_model_exclude_none=True)
+def read_root(url: str | None = None) -> list[AnyComponent]:
+    components = [
+        c.Heading(text='Short your URL', level=1),
+        c.ModelForm(model=schemas.Model, submit_url='/url')
+    ]
+
+    if url is not None:
+        components += [
+            c.Heading(text="Your shorten URL!", level=1),
+            c.Link(components=[c.Text(text=url)], on_click=GoToEvent(url=f'{get_settings().base_url}/{url}'))
+        ]
+    print(components)
+    return [c.Page(components=components)]
 
 
-@app.post('/url', response_model=schemas.URLInfo)
-def create_url(url: schemas.URLBase, db: Annotated[Session, Depends(get_db)]):
+@app.post('/url')
+def create_url(url: Annotated[schemas.Model, fastui_form(schemas.Model)], db: Annotated[Session, Depends(get_db)]):
+    url = schemas.URLBase(target_url=url.url)
     if not validators.url(url.target_url):
         raise_bad_request(message='Your provided URL is not valid')
 
@@ -44,7 +62,7 @@ def create_url(url: schemas.URLBase, db: Annotated[Session, Depends(get_db)]):
     db_url.url = db_url.key
     db_url.admin_url = db_url.secret_key
 
-    return db_url
+    return [c.FireEvent(event=GoToEvent(url=f'/api/new_link/', query={'url': db_url.url}))]
 
 
 @app.get('/{url_key}')
@@ -70,3 +88,8 @@ def delete_url(secret_key: str, request: Request, db: Annotated[Session, Depends
         message = f'Successfully deleted shortener URL for "{url}"'
         return {'detail': message}
     raise_not_found(request)
+
+
+@app.get('/{path:path}')
+async def html_landing() -> HTMLResponse:
+    return HTMLResponse(prebuilt_html(title='URL Shortener'))

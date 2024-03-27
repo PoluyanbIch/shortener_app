@@ -1,0 +1,36 @@
+Metadata-Version: 2.1
+Name: fastui
+Version: 0.5.2
+Summary: Build better UIs faster.
+Project-URL: Homepage, https://github.com/pydantic/FastUI
+Author-email: Samuel Colvin <s@muelcolvin.com>
+License-Expression: MIT
+License-File: LICENSE
+Classifier: Development Status :: 4 - Beta
+Classifier: Framework :: FastAPI
+Classifier: Framework :: Pydantic :: 2
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Information Technology
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Internet
+Requires-Python: >=3.8
+Requires-Dist: pydantic[email]>=2.5.2
+Provides-Extra: fastapi
+Requires-Dist: fastapi>=0.104; extra == 'fastapi'
+Requires-Dist: python-multipart>=0.0.6; extra == 'fastapi'
+Description-Content-Type: text/markdown
+
+# FastUI
+
+[![CI](https://github.com/pydantic/FastUI/actions/workflows/ci.yml/badge.svg)](https://github.com/pydantic/FastUI/actions?query=event%3Apush+branch%3Amain+workflow%3ACI)
+[![versions](https://img.shields.io/pypi/pyversions/fastui.svg)](https://github.com/pydantic/FastUI)
+[![license](https://img.shields.io/github/license/pydantic/FastUI.svg)](https://github.com/pydantic/FastUI/blob/main/LICENSE)
+
+Python components for [FastUI](https://github.com/pydantic/FastUI).
