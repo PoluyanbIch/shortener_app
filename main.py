@@ -2,7 +2,7 @@ from typing import Annotated
 
 import validators
 from fastapi import FastAPI, HTTPException, Depends, Request
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.responses import HTMLResponse
 from fastui import FastUI, AnyComponent, prebuilt_html, components as c
 from fastui.events import GoToEvent
 from fastui.forms import fastui_form
@@ -11,7 +11,6 @@ from sqlalchemy.orm import Session
 import crud
 import models
 import schemas
-from config import get_settings
 from database import SessionLocal, engine
 
 app = FastAPI()
@@ -45,9 +44,8 @@ def read_root(url: str | None = None) -> list[AnyComponent]:
     if url is not None:
         components += [
             c.Heading(text="Your shorten URL!", level=1),
-            c.Link(components=[c.Text(text=url)], on_click=GoToEvent(url=f'{get_settings().base_url}/{url}'))
+            c.Link(components=[c.Text(text=url)], on_click=GoToEvent(url=f'/y/{url}'))
         ]
-    print(components)
     return [c.Page(components=components)]
 
 
@@ -62,14 +60,14 @@ def create_url(url: Annotated[schemas.Model, fastui_form(schemas.Model)], db: An
     db_url.url = db_url.key
     db_url.admin_url = db_url.secret_key
 
-    return [c.FireEvent(event=GoToEvent(url=f'/api/new_link/', query={'url': db_url.url}))]
+    return [c.FireEvent(event=GoToEvent(url=f'/api/', query={'url': db_url.url}))]
 
 
-@app.get('/{url_key}')
+@app.get('/api/y/{url_key}')
 def forward_to_target_url(url_key: str, request: Request, db: Annotated[Session, Depends(get_db)]):
     if db_url := crud.get_db_url_by_key(db, url_key):
         crud.update_db_clicks(db, db_url)
-        return RedirectResponse(db_url.target_url)
+        return [c.FireEvent(event=GoToEvent(url=db_url.target_url))]
     raise_not_found(request)
 
 
